@@ -11,6 +11,9 @@ set -x
 set -e
 
 
+# Initialize profiling
+exec 3>&2 2>>/usr/local/var/log/deluge/execute_script.log
+
 PLEX_MEDIA_ROOT=/usr/local/var/plex/mediaroot
 
 torrentid=$1
@@ -28,11 +31,15 @@ echo "Id: $torrentid" 2>&1 >>/usr/local/var/log/deluge/execute_script.log
 echo "PLEX_MEDIA_ROOT: $PLEX_MEDIA_ROOT" 2>&1 >>/usr/local/var/log/deluge/execute_script.log
     
 
-mv --no-clobber --verbose \
+cp -Rf \
     "${torrentpath}/${torrentname}" \
     "${PLEX_MEDIA_ROOT}/Just Downloaded/" \
     2>&1 >>/usr/local/var/log/deluge/execute_script.log
 
 
-trash "${torrentpath}/${torrentname}" 2>&1 >>/usr/local/var/log/deluge/execute_script.log
+/usr/local/bin/trash "${torrentpath}/${torrentname}" 2>&1 >>/usr/local/var/log/deluge/execute_script.log
+
+
+# Turn off profiling
+exec 2>&3 3>&-
 
